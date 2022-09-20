@@ -37,13 +37,16 @@ class gta5dataset(Dataset):
     def __getitem__(self, index):
 
             image = Image.open(os.path.join(os.path.join(self.root,self.dataset,"images256"),self.filenames[index]))
-            image = np.asarray(image.convert('RGB'),dtype=np.float32)
+            image = np.asarray(image.convert('RGB'), dtype=np.float32)
+
             label = Image.open(os.path.join(os.path.join(self.root,self.dataset,"labels256"),self.filenames[index]))
             label = np.asarray(label, dtype=np.int64)
-            if self. transforms is None:
+            if self.transforms is None:
                 toTensor = T.ToTensor()
-                normalize = T.Normalize((0,0,0),(1,1,1))
-                image = normalize(toTensor(image))
+                # normalize = T.Normalize( mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375])
+                image =toTensor(image)
+            else:
+                image = self.transforms(image)
             return index+1,image,label
 
 
