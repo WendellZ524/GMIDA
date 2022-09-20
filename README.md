@@ -22,7 +22,7 @@ use GMI to help SFDA estimate the source domain distribution
 
 * [ ] GMI Generator
 * [ ] GMI Discriminator
-* [ ] Segmentation network
+* [x] Segmentation network
 * [ ] DAM module
 * [ ] IPSM module
 
