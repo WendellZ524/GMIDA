@@ -27,6 +27,14 @@ from torchvision import transforms as T
 import numpy as np
 
 class gta5dataset(Dataset):
+    """
+    Args:
+        Dataset (_type_): nn.dataset
+    Return
+        id,image,label = tensor (BCHW)
+        image in [0, 255] float32
+
+    """
     def __init__(self,root="./datas",dataset="GTA5",transforms = None):
         self.root = root
         self.dataset = dataset
