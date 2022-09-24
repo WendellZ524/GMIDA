@@ -2,7 +2,6 @@
 
 use GMI to help SFDA estimate the source domain distribution
 
-
 ## Steps
 
 1. Train a GAN use public datas
@@ -18,17 +17,16 @@ CityScapes: (1024,2048,3) in [0, 255] -> 256x512 [0, 255]
 
 # TODO list
 
-
 ## Dataloader
 
-* [x] GTA5 Dataloader
+* [X] GTA5 Dataloader
 * [ ] Cityscapes Dataloader
 
 ## Networks
 
 * [ ] GMI Generator
 * [ ] GMI Discriminator
-* [x] Segmentation network
+* [X] Segmentation network
 * [ ] DAM module
 * [ ] IPSM module
 
@@ -38,12 +36,11 @@ CityScapes: (1024,2048,3) in [0, 255] -> 256x512 [0, 255]
 
 ### SFDA
 
-* [ ] BNS loss
+* [X] BNS loss
 * [ ] DAD loss
-* [ ] MAE loss
+* [X] MAE loss
 * [ ] ADV loss
-* [ ] TAR
-
+* [X] TAR loss
 
 ## Evaluation
 

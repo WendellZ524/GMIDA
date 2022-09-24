@@ -1,9 +1,8 @@
 import  torchvision.models.segmentation as models
 
 class DeepLabV3():
-    # def __init__(self,backbone='resnet50', num_classes=19) -> None:
-    #     self.backbone = backbone
-    #     self.num_classes=num_classes
+    def __init__(self,backbone='resnet50', num_classes=19) -> None:
+        self.latent_vector = None
     def __new__(self,backbone='resnet50', num_classes=19):
         return models.deeplabv3_resnet50(pretrained=False, num_classes=num_classes)
 
