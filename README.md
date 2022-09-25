@@ -17,8 +17,8 @@ use GMI to help SFDA estimate the source domain distribution
 
 ## Networks
 
-* [ ] GMI Generator
-* [ ] GMI Discriminator
+* [X] GMI Generator
+* [X] GMI Discriminator
 * [X] Segmentation network
 * [ ] DAM module
 * [ ] IPSM module
@@ -37,4 +37,4 @@ use GMI to help SFDA estimate the source domain distribution
 
 ## Evaluation
 
-* [ ] Cityscapes Evaluation
+* [X] Cityscapes Evaluation
