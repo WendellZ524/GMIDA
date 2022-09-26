@@ -24,8 +24,8 @@ CityScapes: (1024,2048,3) in [0, 255] -> 256x512 [0, 255]
 
 ## Networks
 
-* [ ] GMI Generator
-* [ ] GMI Discriminator
+* [X] GMI Generator
+* [X] GMI Discriminator
 * [X] Segmentation network
 * [ ] DAM module
 * [ ] IPSM module
@@ -44,7 +44,7 @@ CityScapes: (1024,2048,3) in [0, 255] -> 256x512 [0, 255]
 
 ## Evaluation
 
-* [ ] Cityscapes Evaluation
+* [X] Cityscapes Evaluation
 
 | classes | class id | color |
 | ------- | ----- | ----- |
