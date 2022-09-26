@@ -1,3 +1,4 @@
+from math import fabs
 import torch
 import torch.nn as nn
 import torchvision
@@ -19,53 +20,97 @@ def dconv_bn_relu(in_dim, out_dim):
         nn.BatchNorm2d(out_dim),
         nn.ReLU())
 
-class Generator(nn.Module):
-    def __init__(self, in_dim=100, dim=32):
-        super(Generator, self).__init__()
-        def dconv_bn_relu(in_dim, out_dim):
-            return nn.Sequential(
-                nn.ConvTranspose2d(in_dim, out_dim, 5, 2,
-                                   padding=2, output_padding=1, bias=False),
-                nn.BatchNorm2d(out_dim),
-                nn.ReLU())
+class Generator(torch.nn.Module):
+    def __init__(self, channels,z_dim = 100):
+        super().__init__()
+        k = 5 # 4 5
+        p = 2 # 1 2
+        op = 1 # 0 1
+        self.main_module = nn.Sequential(
+            # Z latent vector 100
+            nn.ConvTranspose2d(in_channels=z_dim, out_channels=1024, kernel_size=5, stride=1, padding=2),
+            nn.BatchNorm2d(num_features=1024),
+            nn.ReLU(True),
+            
 
-        self.l1 = nn.Sequential(
-            nn.Linear(in_dim, dim * 8 * 16 * 32, bias=False),
-            nn.BatchNorm1d(dim * 8 * 16 * 32),
-            nn.ReLU())
-        self.l2_5 = nn.Sequential(
-            dconv_bn_relu(dim * 8, dim * 4),
-            dconv_bn_relu(dim * 4, dim * 2),
-            dconv_bn_relu(dim * 2, dim),
-            nn.ConvTranspose2d(dim, 3, 5, 2, padding=2, output_padding=1),
-            nn.Sigmoid())
+            # State (1024x4x4)
+            nn.ConvTranspose2d(in_channels=1024, out_channels=512, kernel_size=k, stride=2, padding=p,output_padding=op),
+            nn.BatchNorm2d(num_features=512),
+            nn.ReLU(True),
+
+            # State (512x8x8)
+            nn.ConvTranspose2d(in_channels=512, out_channels=256, kernel_size=k, stride=2, padding=p,output_padding=op),
+            nn.BatchNorm2d(num_features=256),
+            nn.ReLU(True),
+
+            # State (256x16x16)
+            nn.ConvTranspose2d(in_channels=256, out_channels=channels, kernel_size=k, stride=2, padding=p, output_padding=op))
+
+            # output of main module --> Image (Cx32x32)
+
+        self.output = nn.Tanh()
+
+    def forward(self, x):
+        x = self.main_module(x)
+        return self.output(x)
+
+class Discriminator(torch.nn.Module):
+    def __init__(self, channels=3,z_dim = 100):
+        """
+        Args:
+            channels (int): channel of the input image
+        Return:
+            output (tensor): B 1 H/8 W/8 (128,256)->(16,32) 
+        """
+        super().__init__()
+        # Filters [256, 512, 1024]
+        self.z_dim = z_dim #(Cx64x64)
+        k = 5 # 4 5
+        p = 2 # 1 2
+        op = 1 # 0 1
+        # Output_dim = 1
+        self.main_module = nn.Sequential(
+            # Omitting batch normalization in critic because our new penalized training objective (WGAN with gradient penalty) is no longer valid
+            # in this setting, since we penalize the norm of the critic's gradient with respect to each input independently and not the enitre batch.
+            # There is not good & fast implementation of layer normalization --> using per instance normalization nn.InstanceNorm2d()
+            # Image (Cx32x32)
+            nn.Conv2d(in_channels=channels, out_channels=256, kernel_size=k, stride=2, padding=p),
+            nn.InstanceNorm2d(256, affine=True),
+            nn.LeakyReLU(0.2, inplace=True),
+
+            # State (256x16x16)
+            nn.Conv2d(in_channels=256, out_channels=512, kernel_size=k, stride=2, padding=p),
+            nn.InstanceNorm2d(512, affine=True),
+            nn.LeakyReLU(0.2, inplace=True),
+
+            # State (512x8x8)
+            nn.Conv2d(in_channels=512, out_channels=1024, kernel_size=k, stride=2, padding=p),
+            nn.InstanceNorm2d(1024, affine=True),
+            nn.LeakyReLU(0.2, inplace=True))
+            # output of main module --> State (1024x4x4)
+
+        self.output = nn.Sequential(
+            # The output of D is no longer a probability, we do not apply sigmoid at the output of D.
+            nn.Conv2d(in_channels=1024, out_channels=1, kernel_size=k, stride=1, padding=p))
 
 
     def forward(self, x):
-        y = self.l1(x)
-        y = y.view(y.size(0), -1, 16, 32)
-        y = self.l2_5(y)
-        return y
+        x = self.main_module(x)
+        return self.output(x)
 
-class Discriminator(nn.Module):
-    def __init__(self, in_dim=3, dim=64):
-        super(Discriminator, self).__init__()
-        def conv_ln_lrelu(in_dim, out_dim):
-            return nn.Sequential(
-                nn.Conv2d(in_dim, out_dim, 5, 2, 2),
-                # Since there is no effective implementation of LayerNorm,
-                # we use InstanceNorm2d instead of LayerNorm here.
-                nn.InstanceNorm2d(out_dim, affine=True),
-                nn.LeakyReLU(0.2))
+    def feature_extraction(self, x):
+        # Use discriminator for feature extraction then flatten to vector of 16384
+        x = self.main_module(x)
+        return x.vie
 
-        self.ls = nn.Sequential(
-            nn.Conv2d(in_dim, dim, 5, 2, 2), nn.LeakyReLU(0.2),
-            conv_ln_lrelu(dim, dim * 2),
-            conv_ln_lrelu(dim * 2, dim * 4),
-            conv_ln_lrelu(dim * 4, dim * 8),
-            nn.Conv2d(dim * 8, 1, 4))
-    
-    def forward(self, x):
-        y = self.ls(x)
-        y = y.view(-1)
-        return y
+
+if __name__ == "__main__":
+    x = torch.randn(2,100,16,32) # 2x100
+    G = Generator(3) # output channels
+    fake = G(x) # 2,3, 32 ,32
+    print(fake.size())
+    D = Discriminator(3)
+    r_logit = D(fake)
+    print(r_logit.size())
+
+
