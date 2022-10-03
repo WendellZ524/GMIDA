@@ -26,6 +26,7 @@ class Generator(torch.nn.Module):
         k = 5 # 4 5
         p = 2 # 1 2
         op = 1 # 0 1
+        self.z_dim=z_dim
         self.main_module = nn.Sequential(
             # Z latent vector 100
             nn.ConvTranspose2d(in_channels=z_dim, out_channels=1024, kernel_size=5, stride=1, padding=2),

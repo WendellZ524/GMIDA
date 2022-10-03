@@ -277,7 +277,7 @@ class CityScapesDataset(BaseDataSet):
         image_path, label_path = self.files[index]
         image_id = os.path.splitext(os.path.basename(image_path))[0]
         image = np.asarray(Image.open(image_path).convert('RGB'), dtype=np.float32)
-        label = np.asarray(Image.open(label_path), dtype=np.int32)
+        label = np.asarray(Image.open(label_path), dtype=np.int64)
 
         for k, v in self.id_to_trainId.items():
             label[label == k] = v
